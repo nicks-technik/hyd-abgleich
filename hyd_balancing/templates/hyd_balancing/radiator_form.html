@@ -16,4 +16,33 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('id_radiator_type');
+        const widthDiv = document.getElementById('div_id_width_mm');
+        const heightDiv = document.getElementById('div_id_height_mm');
+        const areaDiv = document.getElementById('div_id_area_sqm');
+        const pipeLenDiv = document.getElementById('div_id_pipe_length_m');
+
+        function toggleDimensions() {
+            if (typeSelect.value === 'underfloor') {
+                widthDiv.style.display = 'none';
+                heightDiv.style.display = 'none';
+                areaDiv.style.display = 'block';
+                pipeLenDiv.style.display = 'block';
+            } else {
+                widthDiv.style.display = 'block';
+                heightDiv.style.display = 'block';
+                areaDiv.style.display = 'none';
+                pipeLenDiv.style.display = 'none';
+            }
+        }
+
+        if (typeSelect && widthDiv && heightDiv && areaDiv && pipeLenDiv) {
+            typeSelect.addEventListener('change', toggleDimensions);
+            toggleDimensions(); // Init
+        }
+    });
+</script>
 {% endblock %}
