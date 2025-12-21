@@ -1,0 +1,30 @@
+{% extends 'hyd_balancing/base.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+  <div class="container-fluid py-5">
+    <h1 class="display-5 fw-bold">Hydraulic Balancing Made Easy</h1>
+    <p class="col-md-8 fs-4">Optimize your heating system, save energy, and increase comfort. This tool guides you through the process of calculating the correct valve settings for your radiators.</p>
+    <a class="btn btn-primary btn-lg" type="button" href="#">Start Calculation</a>
+  </div>
+</div>
+
+<div class="row align-items-md-stretch">
+  <div class="col-md-6">
+    <div class="h-100 p-5 text-bg-dark rounded-3">
+      <h2>Why is it important?</h2>
+      <p>Hydraulic balancing ensures that every radiator receives the exact amount of heat it needs. Without it, some rooms may be too cold while others are too hot, leading to energy waste and noise.</p>
+      <button class="btn btn-outline-light" type="button">Learn More</button>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+      <h2>How it works</h2>
+      <p>Simply enter your room sizes, radiator types, and heating system details. Our wizard will calculate the optimal flow settings for each valve.</p>
+      <button class="btn btn-outline-secondary" type="button">View Guide</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
