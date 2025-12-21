@@ -26,4 +26,5 @@ venv.bak/
 # Build
 dist/
 build/
-*.egg-info/
+*.egg-info/!/.gemini/
+.gemini/*.secret
