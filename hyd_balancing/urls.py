@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    HomeView,
+    HomeView, AboutView,
     HeatingSystemCreateView, HeatingSystemDetailView, HeatingSystemUpdateView, HeatingSystemDeleteView,
     RoomCreateView, RoomUpdateView, RoomDeleteView,
     RadiatorCreateView, RadiatorUpdateView, RadiatorDeleteView
@@ -8,6 +8,7 @@ from .views import (
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
+    path('about/', AboutView.as_view(), name='about'),
     
     # Heating System URLs
     path('system/add/', HeatingSystemCreateView.as_view(), name='system_create'),

@@ -1,0 +1,34 @@
+{% extends 'hyd_balancing/base.html' %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">About This Project</h1>
+            <p class="lead">The Hydraulic Balancing tool helps homeowners optimize their heating systems for better efficiency and comfort.</p>
+            
+            <hr class="my-4">
+            
+            <h3>What is Hydraulic Balancing?</h3>
+            <p>Hydraulic balancing is the process of adjusting the water flow in a heating system so that every radiator receives exactly the amount of heat it requires. This prevents some rooms from being under-heated while others are over-heated.</p>
+            
+            <h3>Why use this tool?</h3>
+            <ul>
+                <li><strong>Save Energy:</strong> A balanced system operates more efficiently, reducing fuel consumption.</li>
+                <li><strong>Increase Comfort:</strong> Achieve consistent temperatures across all rooms.</li>
+                <li><strong>Reduce Noise:</strong> Eliminate flow noises caused by incorrect pressure settings.</li>
+            </ul>
+
+            <h3>How it works</h3>
+            <p>We use standard engineering formulas to estimate the heat load of your rooms based on their size and insulation quality. We then calculate the required flow rate for your specific radiator type and determine the optimal valve setting.</p>
+            
+            <div class="mt-5 p-4 bg-light rounded">
+                <h5>Disclaimer</h5>
+                <p class="small text-muted mb-0">This tool provides estimates based on general assumptions. For precise professional results, please consult a certified heating engineer.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
