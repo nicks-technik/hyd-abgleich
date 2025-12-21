@@ -49,6 +49,7 @@ class Radiator(models.Model):
     radiator_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='22')
     
     # Results (calculated later)
+    calculated_load_watts = models.FloatField(null=True, blank=True, verbose_name=_("Calculated Load (W)"))
     required_flow_rate = models.FloatField(null=True, blank=True, verbose_name=_("Required Flow Rate (l/h)"))
     valve_setting = models.CharField(max_length=50, null=True, blank=True, verbose_name=_("Recommended Valve Setting"))
 

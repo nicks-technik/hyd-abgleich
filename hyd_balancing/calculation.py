@@ -69,6 +69,7 @@ def perform_hydraulic_balancing(system: HeatingSystem):
             setting = determine_valve_setting(req_flow)
             
             # 5. Update Model
+            rad.calculated_load_watts = round(load_per_radiator, 1)
             rad.required_flow_rate = round(req_flow, 2)
             rad.valve_setting = setting
             rad.save()

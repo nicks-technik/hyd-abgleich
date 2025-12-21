@@ -42,6 +42,30 @@ class HeatingSystemDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return HeatingSystem.objects.filter(user=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        system = self.object
+        rooms = system.rooms.all()
+        
+        total_area = 0
+        total_load = 0
+        total_radiators = 0
+        
+        # We need the logic from calculation.py to show stats
+        from .calculation import get_specific_heat_demand
+        
+        for room in rooms:
+            total_area += room.area_sqm
+            specific_heat = get_specific_heat_demand(room)
+            total_load += room.area_sqm * specific_heat
+            total_radiators += room.radiators.count()
+            
+        context['total_area'] = round(total_area, 2)
+        context['total_load_kw'] = round(total_load / 1000, 2)
+        context['total_radiators'] = total_radiators
+        context['delta_t'] = system.supply_temperature - system.return_temperature
+        return context
+
 class HeatingSystemUpdateView(LoginRequiredMixin, UpdateView):
     model = HeatingSystem
     form_class = HeatingSystemForm
