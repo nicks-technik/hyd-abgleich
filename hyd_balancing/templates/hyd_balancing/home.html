@@ -1,30 +1,34 @@
 {% extends 'hyd_balancing/base.html' %}
 
-{% block title %}Welcome{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="p-5 mb-4 bg-light rounded-3">
   <div class="container-fluid py-5">
-    <h1 class="display-5 fw-bold">Hydraulic Balancing Made Easy</h1>
-    <p class="col-md-8 fs-4">Optimize your heating system, save energy, and increase comfort. This tool guides you through the process of calculating the correct valve settings for your radiators.</p>
-    <a class="btn btn-primary btn-lg" type="button" href="#">Start Calculation</a>
+    <h1 class="display-5 fw-bold">Hydraulic Balancing</h1>
+    <p class="col-md-8 fs-4">Manage your heating systems and calculate optimal valve settings.</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'system_create' %}">Create New System</a>
   </div>
 </div>
 
-<div class="row align-items-md-stretch">
-  <div class="col-md-6">
-    <div class="h-100 p-5 text-bg-dark rounded-3">
-      <h2>Why is it important?</h2>
-      <p>Hydraulic balancing ensures that every radiator receives the exact amount of heat it needs. Without it, some rooms may be too cold while others are too hot, leading to energy waste and noise.</p>
-      <button class="btn btn-outline-light" type="button">Learn More</button>
+<div class="row">
+    <div class="col-12">
+        <h2>Your Systems</h2>
+        {% if systems %}
+            <div class="list-group">
+                {% for system in systems %}
+                    <a href="{% url 'system_detail' system.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">{{ system.name }}</h5>
+                            <small>Supply: {{ system.supply_temperature }}°C | Return: {{ system.return_temperature }}°C</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ system.rooms.count }} Rooms</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">No heating systems found. Create one to get started!</div>
+        {% endif %}
     </div>
-  </div>
-  <div class="col-md-6">
-    <div class="h-100 p-5 bg-body-tertiary border rounded-3">
-      <h2>How it works</h2>
-      <p>Simply enter your room sizes, radiator types, and heating system details. Our wizard will calculate the optimal flow settings for each valve.</p>
-      <button class="btn btn-outline-secondary" type="button">View Guide</button>
-    </div>
-  </div>
 </div>
 {% endblock %}
