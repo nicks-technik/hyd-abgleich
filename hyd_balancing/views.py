@@ -10,6 +10,9 @@ class HomeView(ListView):
     template_name = "hyd_balancing/home.html"
     context_object_name = 'systems'
 
+class AboutView(TemplateView):
+    template_name = "hyd_balancing/about.html"
+
 # --- Heating System Views ---
 class HeatingSystemCreateView(CreateView):
     model = HeatingSystem
