@@ -27,30 +27,58 @@ class HeatingSystemForm(forms.ModelForm):
         )
 
 class RoomForm(forms.ModelForm):
+    length_m = forms.FloatField(required=False, label="Length (m)", min_value=0)
+    width_m = forms.FloatField(required=False, label="Width (m)", min_value=0)
+
     class Meta:
         model = Room
-        fields = ['name', 'area_sqm', 'height_m', 'target_temp', 'insulation_quality']
+        fields = ['name', 'length_m', 'width_m', 'area_sqm', 'height_m', 'target_temp', 'insulation_quality', 'custom_insulation_value']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['area_sqm'].required = False  # Make optional as it can be calculated
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
                 'Room Details',
                 'name',
                 Row(
-                    Column('area_sqm', css_class='col-md-6'),
-                    Column('height_m', css_class='col-md-6'),
+                    Column('length_m', css_class='col-md-6'),
+                    Column('width_m', css_class='col-md-6'),
+                ),
+                'area_sqm',
+                Row(
+                    Column('height_m', css_class='col-md-4'),
+                    Column('target_temp', css_class='col-md-4'),
                 ),
                 Row(
-                    Column('target_temp', css_class='col-md-6'),
                     Column('insulation_quality', css_class='col-md-6'),
+                    Column('custom_insulation_value', css_class='col-md-6'),
                 ),
             ),
             ButtonHolder(
                 Submit('submit', 'Save Room', css_class='btn btn-primary')
             )
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        length = cleaned_data.get('length_m')
+        width = cleaned_data.get('width_m')
+        area = cleaned_data.get('area_sqm')
+        insulation = cleaned_data.get('insulation_quality')
+        custom_val = cleaned_data.get('custom_insulation_value')
+
+        if not area and length and width:
+            cleaned_data['area_sqm'] = length * width
+        
+        if not cleaned_data.get('area_sqm'):
+            self.add_error('area_sqm', 'Please provide either the total area or length and width.')
+
+        if insulation == 'custom' and not custom_val:
+            self.add_error('custom_insulation_value', 'Please provide a custom value if you select "Custom".')
+            
+        return cleaned_data
 
 class RadiatorForm(forms.ModelForm):
     class Meta:

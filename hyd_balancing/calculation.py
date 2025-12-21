@@ -1,15 +1,18 @@
 from .models import HeatingSystem, Room, Radiator
 
-def get_specific_heat_demand(insulation_quality):
+def get_specific_heat_demand(room):
     """
-    Returns estimated W/m² based on insulation quality.
+    Returns estimated W/m² based on insulation quality or custom value.
     """
+    if room.insulation_quality == 'custom' and room.custom_insulation_value:
+        return room.custom_insulation_value
+
     mapping = {
         'poor': 150.0,    # Old building, uninsulated
         'average': 100.0, # Standard / Renovated
         'good': 50.0,     # Modern / Highly Insulated
     }
-    return mapping.get(insulation_quality, 100.0)
+    return mapping.get(room.insulation_quality, 100.0)
 
 def determine_valve_setting(flow_rate):
     """
@@ -38,7 +41,7 @@ def perform_hydraulic_balancing(system: HeatingSystem):
 
     for room in system.rooms.all():
         # 1. Calculate Room Heat Load
-        specific_heat = get_specific_heat_demand(room.insulation_quality)
+        specific_heat = get_specific_heat_demand(room)
         room_load_watts = room.area_sqm * specific_heat
         
         # 2. Distribute load among radiators

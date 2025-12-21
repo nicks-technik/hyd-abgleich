@@ -18,6 +18,7 @@ class Room(models.Model):
         ('poor', _('Poor (Old Building)')),
         ('average', _('Average (Renovated)')),
         ('good', _('Good (Modern/Insulated)')),
+        ('custom', _('Custom Value (W/m²)')),
     ]
 
     system = models.ForeignKey(HeatingSystem, on_delete=models.CASCADE, related_name='rooms')
@@ -26,6 +27,7 @@ class Room(models.Model):
     height_m = models.FloatField(default=2.5, verbose_name=_("Ceiling Height (m)"))
     target_temp = models.FloatField(default=20.0, verbose_name=_("Target Temperature (°C)"))
     insulation_quality = models.CharField(max_length=20, choices=INSULATION_CHOICES, default='average')
+    custom_insulation_value = models.FloatField(null=True, blank=True, verbose_name=_("Custom Insulation Value (W/m²)"), help_text=_("Only used if 'Custom' is selected above"))
 
     def __str__(self):
         return f"{self.name} ({self.system.name})"
