@@ -13,7 +13,6 @@
 - [x] User Authentication and Data Isolation (Users see only their own systems).
 - [x] Functional "About" page.
 - [ ] PDF Export of calculation results (Planned).
-- [ ] Context7 MCP Server integration for AI-assisted building analysis.
 
 ## Project Structure
 - `hyd_abgleich/`: Settings, URLs, WSGI/ASGI.
@@ -35,6 +34,3 @@
 uv run manage.py migrate
 uv run manage.py runserver
 ```
-
-## Context7 Integration (Experimental)
-The project includes a `context7` MCP server entry point via `manage.py run_context7_server`. This allows AI assistants to interact with the building data directly when configured in their environment.

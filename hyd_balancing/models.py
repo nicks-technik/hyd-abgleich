@@ -1,7 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 class HeatingSystem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='systems', verbose_name=_("User"), null=True, blank=True)
     name = models.CharField(max_length=100, verbose_name=_("System Name"))
     supply_temperature = models.IntegerField(default=70, verbose_name=_("Supply Temperature (°C)"), help_text=_("Vorlauftemperatur"))
     return_temperature = models.IntegerField(default=55, verbose_name=_("Return Temperature (°C)"), help_text=_("Rücklauftemperatur"))
