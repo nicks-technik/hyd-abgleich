@@ -1,0 +1,15 @@
+{% extends 'hyd_balancing/base.html' %}
+
+{% block title %}Confirm Delete Room{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger">
+    <h4 class="alert-heading">Confirm Deletion</h4>
+    <p>Are you sure you want to delete the room "<strong>{{ object.name }}</strong>"?</p>
+    <hr>
+    <form method="post">{% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, delete it</button>
+        <a href="{% url 'system_detail' object.system.pk %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
