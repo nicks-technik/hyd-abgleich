@@ -1,7 +1,7 @@
 from django import forms
 from .models import HeatingSystem, Room, Radiator
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Fieldset, ButtonHolder
+from crispy_forms.layout import Layout, Submit, Row, Column, Fieldset, ButtonHolder, HTML
 
 class HeatingSystemForm(forms.ModelForm):
     class Meta:
@@ -22,7 +22,8 @@ class HeatingSystemForm(forms.ModelForm):
                 ),
             ),
             ButtonHolder(
-                Submit('submit', 'Save System', css_class='btn btn-primary')
+                Submit('submit', 'Save System', css_class='btn btn-primary'),
+                HTML('<a href="javascript:history.back()" class="btn btn-secondary ms-2">Cancel</a>')
             )
         )
 
@@ -57,7 +58,8 @@ class RoomForm(forms.ModelForm):
                 ),
             ),
             ButtonHolder(
-                Submit('submit', 'Save Room', css_class='btn btn-primary')
+                Submit('submit', 'Save Room', css_class='btn btn-primary'),
+                HTML('<a href="javascript:history.back()" class="btn btn-secondary ms-2">Cancel</a>')
             )
         )
 
@@ -99,6 +101,7 @@ class RadiatorForm(forms.ModelForm):
                 ),
             ),
             ButtonHolder(
-                Submit('submit', 'Save Radiator', css_class='btn btn-primary')
+                Submit('submit', 'Save Radiator', css_class='btn btn-primary'),
+                HTML('<a href="javascript:history.back()" class="btn btn-secondary ms-2">Cancel</a>')
             )
         )
