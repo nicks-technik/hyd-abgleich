@@ -1,0 +1,124 @@
+{% extends 'hyd_balancing/base.html' %}
+
+{% block title %}Adjust Percentages - {{ room.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center pt-4">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Adjust Heat Load Percentages: {{ room.name }}</h4>
+                <span class="badge bg-light text-dark">Total Room Load: 100%</span>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-4">
+                    Distribute the room's total heat demand among the available radiators. 
+                    The total should typically be 100%. Set to 0% if a radiator should be ignored.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+                    
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Radiator</th>
+                                <th>Type</th>
+                                <th style="width: 200px;">Load Share (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form in formset %}
+                                <tr>
+                                    <td>
+                                        {{ form.id }}
+                                        <strong>{{ form.instance.name }}</strong>
+                                    </td>
+                                    <td>{{ form.instance.get_radiator_type_display }}</td>
+                                    <td>
+                                        <div class="input-group">
+                                            {{ form.load_percentage }}
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        {% if form.load_percentage.errors %}
+                                            <div class="text-danger small">{{ form.load_percentage.errors }}</div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-info fw-bold">
+                                <td colspan="2" class="text-end">Current Total:</td>
+                                <td>
+                                    <span id="total-percentage">0</span>%
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="alert alert-warning d-none" id="percentage-warning">
+                        <strong>Note:</strong> Your total is <span id="warning-val"></span>%. It is usually recommended to sum up to exactly 100%.
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'system_detail' room.system.pk %}" class="btn btn-outline-secondary">Back</a>
+                        <div>
+                            <button type="submit" name="auto_distribute" class="btn btn-outline-info me-2">Auto-Distribute by Capacity</button>
+                            <button type="submit" class="btn btn-primary px-4">Save Percentages</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('.percentage-input');
+        const totalSpan = document.getElementById('total-percentage');
+        const warningDiv = document.getElementById('percentage-warning');
+        const warningVal = document.getElementById('warning-val');
+        const saveBtn = document.querySelector('button[type="submit"]');
+
+        function calculateTotal() {
+            let total = 0;
+            inputs.forEach(input => {
+                const val = parseInt(input.value) || 0;
+                total += val;
+            });
+            
+            totalSpan.textContent = total;
+            
+            if (total > 100) {
+                warningDiv.classList.remove('d-none', 'alert-warning');
+                warningDiv.classList.add('alert-danger');
+                warningVal.textContent = total;
+                totalSpan.parentElement.classList.add('text-danger');
+                saveBtn.disabled = true;
+                saveBtn.title = "Total percentage cannot exceed 100%";
+            } else {
+                warningDiv.classList.add('d-none');
+                warningDiv.classList.remove('alert-danger');
+                warningDiv.classList.add('alert-warning');
+                totalSpan.parentElement.classList.remove('text-danger');
+                saveBtn.disabled = false;
+                saveBtn.removeAttribute('title');
+                
+                if (total !== 100) {
+                    warningDiv.classList.remove('d-none');
+                    warningVal.textContent = total;
+                }
+            }
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+
+        calculateTotal(); // Initial run
+    });
+</script>
+{% endblock %}
