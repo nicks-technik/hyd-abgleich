@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     HomeView, AboutView,
-    HeatingSystemCreateView, HeatingSystemDetailView, HeatingSystemUpdateView, HeatingSystemDeleteView,
+    HeatingSystemCreateView, HeatingSystemDetailView, HeatingSystemUpdateView, HeatingSystemDeleteView, HeatingSystemCalculateView,
     RoomCreateView, RoomUpdateView, RoomDeleteView,
     RadiatorCreateView, RadiatorUpdateView, RadiatorDeleteView
 )
@@ -15,6 +15,7 @@ urlpatterns = [
     path('system/<int:pk>/', HeatingSystemDetailView.as_view(), name='system_detail'),
     path('system/<int:pk>/edit/', HeatingSystemUpdateView.as_view(), name='system_update'),
     path('system/<int:pk>/delete/', HeatingSystemDeleteView.as_view(), name='system_delete'),
+    path('system/<int:pk>/calculate/', HeatingSystemCalculateView.as_view(), name='system_calculate'),
 
     # Room URLs
     path('system/<int:system_pk>/room/add/', RoomCreateView.as_view(), name='room_create'),

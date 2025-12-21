@@ -1,8 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
+from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib import messages
 from .models import HeatingSystem, Room, Radiator
 from .forms import HeatingSystemForm, RoomForm, RadiatorForm
+from .calculation import perform_hydraulic_balancing
 
 # --- Home/System List ---
 class HomeView(ListView):
@@ -10,8 +13,10 @@ class HomeView(ListView):
     template_name = "hyd_balancing/home.html"
     context_object_name = 'systems'
 
-class AboutView(TemplateView):
-    template_name = "hyd_balancing/about.html"
+class AboutView(View): # Changed from TemplateView to View to avoid re-import if I missed it, but sticking to standard structure is better.
+    # Actually, let's keep it clean. I will re-write the imports carefully.
+    def get(self, request):
+        return render(request, "hyd_balancing/about.html")
 
 # --- Heating System Views ---
 class HeatingSystemCreateView(CreateView):
@@ -39,6 +44,13 @@ class HeatingSystemDeleteView(DeleteView):
     model = HeatingSystem
     template_name = 'hyd_balancing/system_confirm_delete.html'
     success_url = reverse_lazy('home')
+
+class HeatingSystemCalculateView(View):
+    def post(self, request, pk):
+        system = get_object_or_404(HeatingSystem, pk=pk)
+        perform_hydraulic_balancing(system)
+        messages.success(request, f"Calculation completed for {system.name}.")
+        return redirect('system_detail', pk=pk)
 
 # --- Room Views ---
 class RoomCreateView(CreateView):

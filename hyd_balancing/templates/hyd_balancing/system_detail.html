@@ -6,6 +6,10 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">{{ system.name }}</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
+        <form action="{% url 'system_calculate' system.pk %}" method="post" class="me-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-warning">⚡ Calculate Valve Settings</button>
+        </form>
         <div class="btn-group me-2">
             <a href="{% url 'system_update' system.pk %}" class="btn btn-sm btn-outline-secondary">Edit System</a>
             <a href="{% url 'system_delete' system.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
@@ -63,6 +67,7 @@
                                         <th>Radiator</th>
                                         <th>Type</th>
                                         <th>Dimensions (WxH)</th>
+                                        <th>Flow Rate</th>
                                         <th>Setting</th>
                                         <th>Actions</th>
                                     </tr>
@@ -75,6 +80,13 @@
                                             <td>
                                                 {% if radiator.width_mm %}{{ radiator.width_mm }}mm{% endif %} 
                                                 {% if radiator.height_mm %}x {{ radiator.height_mm }}mm{% endif %}
+                                            </td>
+                                            <td>
+                                                {% if radiator.required_flow_rate %}
+                                                    {{ radiator.required_flow_rate }} l/h
+                                                {% else %}
+                                                    -
+                                                {% endif %}
                                             </td>
                                             <td>
                                                 {% if radiator.valve_setting %}
