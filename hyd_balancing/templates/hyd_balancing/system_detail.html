@@ -20,18 +20,58 @@
 
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-header">Supply Temp</div>
-            <div class="card-body">
-                <h5 class="card-title">{{ system.supply_temperature }} °C</h5>
+        <div class="card border-primary mb-3">
+            <div class="card-header bg-primary text-white">Temperatures</div>
+            <div class="card-body py-2">
+                <p class="mb-1 small text-muted">Supply/Return/Delta</p>
+                <h5 class="card-title">{{ system.supply_temperature }} / {{ system.return_temperature }} / {{ delta_t }} °C</h5>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card text-white bg-secondary mb-3">
-            <div class="card-header">Return Temp</div>
+        <div class="card border-info mb-3">
+            <div class="card-header bg-info text-dark">Total Area</div>
+            <div class="card-body py-2">
+                <p class="mb-1 small text-muted">Sum of all rooms</p>
+                <h5 class="card-title">{{ total_area }} m²</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-danger mb-3">
+            <div class="card-header bg-danger text-white">Total Heat Load</div>
+            <div class="card-body py-2">
+                <p class="mb-1 small text-muted">Estimated demand</p>
+                <h5 class="card-title">{{ total_load_kw }} kW</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success mb-3">
+            <div class="card-header bg-success text-white">Radiators</div>
+            <div class="card-body py-2">
+                <p class="mb-1 small text-muted">Total units</p>
+                <h5 class="card-title">{{ total_radiators }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-light">
             <div class="card-body">
-                <h5 class="card-title">{{ system.return_temperature }} °C</h5>
+                <h5 class="card-title">How calculations are made</h5>
+                <p class="card-text small">
+                    Calculations are performed <strong>per radiator</strong> to determine the required water flow. 
+                    First, we estimate the <strong>Room Heat Load</strong> ($Q_{room}$) based on area and insulation. 
+                    Then, we divide this load by the number of radiators in that room ($Q_{rad}$).
+                </p>
+                <p class="card-text small mb-0">
+                    <strong>Formula:</strong> $\text{Flow} (l/h) = \frac{Q_{rad}}{1.163 \times \Delta T}$
+                    &nbsp;&bull;&nbsp; 
+                    $\Delta T$ = {{ system.supply_temperature }} - {{ system.return_temperature }} = {{ delta_t }}K
+                </p>
             </div>
         </div>
     </div>
@@ -61,12 +101,13 @@
                         </div>
 
                         {% if room.radiators.all %}
-                            <table class="table table-striped table-hover">
+                            <table class="table table-striped table-hover align-middle">
                                 <thead>
                                     <tr>
                                         <th>Radiator</th>
                                         <th>Type</th>
-                                        <th>Dimensions (WxH)</th>
+                                        <th>Dimensions</th>
+                                        <th>Target Load</th>
                                         <th>Flow Rate</th>
                                         <th>Setting</th>
                                         <th>Actions</th>
@@ -78,12 +119,21 @@
                                             <td>{{ radiator.name }}</td>
                                             <td>{{ radiator.get_radiator_type_display }}</td>
                                             <td>
-                                                {% if radiator.width_mm %}{{ radiator.width_mm }}mm{% endif %} 
-                                                {% if radiator.height_mm %}x {{ radiator.height_mm }}mm{% endif %}
+                                                <small>
+                                                    {% if radiator.width_mm %}{{ radiator.width_mm }}mm{% endif %} 
+                                                    {% if radiator.height_mm %}x {{ radiator.height_mm }}mm{% endif %}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                {% if radiator.calculated_load_watts %}
+                                                    {{ radiator.calculated_load_watts }} W
+                                                {% else %}
+                                                    -
+                                                {% endif %}
                                             </td>
                                             <td>
                                                 {% if radiator.required_flow_rate %}
-                                                    {{ radiator.required_flow_rate }} l/h
+                                                    <strong>{{ radiator.required_flow_rate }} l/h</strong>
                                                 {% else %}
                                                     -
                                                 {% endif %}
