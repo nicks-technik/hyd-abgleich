@@ -20,7 +20,7 @@
 
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card border-primary mb-3">
+        <div class="card border-primary mb-3" data-bs-toggle="tooltip" title="Supply: Water entering the system. Return: Water leaving. Delta: The difference used for calculation.">
             <div class="card-header bg-primary text-white">Temperatures</div>
             <div class="card-body py-2">
                 <p class="mb-1 small text-muted">Supply/Return/Delta</p>
@@ -29,7 +29,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card border-info mb-3">
+        <div class="card border-info mb-3" data-bs-toggle="tooltip" title="Total square meters of all rooms combined.">
             <div class="card-header bg-info text-dark">Total Area</div>
             <div class="card-body py-2">
                 <p class="mb-1 small text-muted">Sum of all rooms</p>
@@ -38,7 +38,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card border-danger mb-3">
+        <div class="card border-danger mb-3" data-bs-toggle="tooltip" title="Total energy needed to heat all rooms at the specified insulation levels.">
             <div class="card-header bg-danger text-white">Total Heat Load</div>
             <div class="card-body py-2">
                 <p class="mb-1 small text-muted">Estimated demand</p>
@@ -47,7 +47,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card border-success mb-3">
+        <div class="card border-success mb-3" data-bs-toggle="tooltip" title="Total number of individual radiators in the system.">
             <div class="card-header bg-success text-white">Radiators</div>
             <div class="card-body py-2">
                 <p class="mb-1 small text-muted">Total units</p>
@@ -83,19 +83,37 @@
         {% for room in system.rooms.all %}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="heading{{ room.pk }}">
-                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ room.pk }}" aria-expanded="true" aria-controls="collapse{{ room.pk }}">
-                        <strong>{{ room.name }}</strong> &nbsp; <small class="text-muted">({{ room.area_sqm }} m², {{ room.target_temp }}°C)</small>
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ room.pk }}" aria-expanded="true" aria-controls="collapse{{ room.pk }}">
+                        <strong>{{ room.name }}</strong> &nbsp; 
+                        <small class="text-muted">({{ room.area_sqm }} m², {{ room.target_temp }}°C)</small>
+                        {% if room.total_load_percentage != 100 %}
+                            <span class="badge bg-warning text-dark ms-2" data-bs-toggle="tooltip" title="Total radiator load is {{ room.total_load_percentage }}% instead of 100%.">
+                                ⚠️ Load: {{ room.total_load_percentage }}%
+                            </span>
+                        {% endif %}
                     </button>
                 </h2>
-                <div id="collapse{{ room.pk }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ room.pk }}" data-bs-parent="#roomsAccordion">
+                <div id="collapse{{ room.pk }}" class="accordion-collapse collapse show" aria-labelledby="heading{{ room.pk }}">
                     <div class="accordion-body">
                         <div class="d-flex justify-content-between mb-3">
                             <div>
-                                <span class="badge bg-info text-dark">Insulation: {{ room.get_insulation_quality_display }}</span>
+                                <span class="badge bg-info text-dark">
+                                    Insulation: {{ room.get_insulation_quality_display }}
+                                    {% if room.insulation_quality == 'custom' %}
+                                        ({{ room.custom_insulation_value }} W/m²)
+                                    {% elif room.insulation_quality == 'poor' %}
+                                        (150 W/m²)
+                                    {% elif room.insulation_quality == 'average' %}
+                                        (100 W/m²)
+                                    {% elif room.insulation_quality == 'good' %}
+                                        (50 W/m²)
+                                    {% endif %}
+                                </span>
                             </div>
                             <div class="btn-group">
                                 <a href="{% url 'room_update' room.pk %}" class="btn btn-sm btn-outline-secondary">Edit Room</a>
                                 <a href="{% url 'radiator_create' room.pk %}" class="btn btn-sm btn-success">Add Radiator</a>
+                                <a href="{% url 'room_radiator_percentages' room.pk %}" class="btn btn-sm btn-outline-info">Distribute Load %</a>
                                 <a href="{% url 'room_delete' room.pk %}" class="btn btn-sm btn-outline-danger">Delete Room</a>
                             </div>
                         </div>
@@ -105,11 +123,14 @@
                                 <thead>
                                     <tr>
                                         <th>Radiator</th>
-                                        <th>Type</th>
-                                        <th>Dimensions</th>
-                                        <th>Target Load</th>
-                                        <th>Flow Rate</th>
-                                        <th>Setting</th>
+                                        <th data-bs-toggle="tooltip" title="The design type of the radiator (e.g., 22 is a standard double-panel).">Type</th>
+                                        <th data-bs-toggle="tooltip" title="Physical size in millimeters.">Dimensions (W x H)</th>
+                                        <th data-bs-toggle="tooltip" title="Percentage of room load covered by this unit.">Load %</th>
+                                        <th data-bs-toggle="tooltip" title="The standard heat output at 75/65/20 temperatures.">Nominal</th>
+                                        <th data-bs-toggle="tooltip" title="The heat output this radiator can deliver at current system temperatures.">Max Cap.</th>
+                                        <th data-bs-toggle="tooltip" title="The energy in Watts this radiator must provide to heat its share of the room.">Target Load</th>
+                                        <th data-bs-toggle="tooltip" title="The volume of water (Liters per Hour) needed to deliver the target heat.">Flow Rate</th>
+                                        <th data-bs-toggle="tooltip" title="The specific pre-setting for the thermostatic valve.">Setting</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -119,21 +140,66 @@
                                             <td>{{ radiator.name }}</td>
                                             <td>{{ radiator.get_radiator_type_display }}</td>
                                             <td>
-                                                <small>
-                                                    {% if radiator.width_mm %}{{ radiator.width_mm }}mm{% endif %} 
-                                                    {% if radiator.height_mm %}x {{ radiator.height_mm }}mm{% endif %}
-                                                </small>
+                                                {% if radiator.radiator_type == 'underfloor' %}
+                                                    {% if radiator.area_sqm %}{{ radiator.area_sqm }} m²{% else %}Room Area{% endif %}
+                                                    {% if radiator.pipe_length_m %}<br><small class="text-muted">Len: {{ radiator.pipe_length_m }}m</small>{% endif %}
+                                                {% else %}
+                                                    {% if radiator.width_mm and radiator.height_mm %}
+                                                        {{ radiator.width_mm }} x {{ radiator.height_mm }} mm
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ radiator.load_percentage }}%</td>
+                                            <td>
+                                                {% if radiator.nominal_capacity_watts %}
+                                                    {{ radiator.nominal_capacity_watts }} W
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if radiator.max_capacity_watts %}
+                                                    {{ radiator.max_capacity_watts }} W
+                                                {% else %}
+                                                    -
+                                                {% endif %}
                                             </td>
                                             <td>
                                                 {% if radiator.calculated_load_watts %}
-                                                    {{ radiator.calculated_load_watts }} W
+                                                    {% if radiator.max_capacity_watts and radiator.calculated_load_watts > radiator.max_capacity_watts %}
+                                                        <span class="text-danger fw-bold" data-bs-toggle="tooltip" title="Warning: This radiator is too small for the requested load at these temperatures. Max capacity is {{ radiator.max_capacity_watts }}W.">
+                                                            ⚠️ {{ radiator.calculated_load_watts }} W
+                                                        </span>
+                                                    {% else %}
+                                                        {{ radiator.calculated_load_watts }} W
+                                                    {% endif %}
                                                 {% else %}
                                                     -
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 {% if radiator.required_flow_rate %}
-                                                    <strong>{{ radiator.required_flow_rate }} l/h</strong>
+                                                    <span class="fw-bold" 
+                                                          style="cursor: help; border-bottom: 1px dotted #999;"
+                                                          data-bs-toggle="popover" 
+                                                          data-bs-trigger="hover focus"
+                                                          data-bs-html="true"
+                                                          title="Flow Calculation"
+                                                          data-bs-content="
+                                                            <div class='small'>
+                                                                <p class='mb-2'>{{ radiator.flow_calculation_details.explanation }}</p>
+                                                                <div class='bg-light p-2 mb-2 rounded border font-monospace'>
+                                                                    {{ radiator.flow_calculation_details.full_string }}
+                                                                </div>
+                                                                <button class='btn btn-xs btn-outline-primary w-100' onclick='copyToClipboard(&quot;{{ radiator.flow_calculation_details.full_string }}&quot;)'>
+                                                                    📋 Copy Calculation
+                                                                </button>
+                                                            </div>
+                                                          ">
+                                                        {{ radiator.required_flow_rate }} l/h
+                                                    </span>
                                                 {% else %}
                                                     -
                                                 {% endif %}
