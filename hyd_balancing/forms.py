@@ -85,7 +85,7 @@ class RoomForm(forms.ModelForm):
 class RadiatorForm(forms.ModelForm):
     class Meta:
         model = Radiator
-        fields = ['name', 'radiator_type', 'width_mm', 'height_mm']
+        fields = ['name', 'radiator_type', 'width_mm', 'height_mm', 'area_sqm', 'pipe_length_m', 'load_percentage']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,7 +94,14 @@ class RadiatorForm(forms.ModelForm):
             Fieldset(
                 'Radiator Specification',
                 'name',
-                'radiator_type',
+                Row(
+                    Column('radiator_type', css_class='col-md-6'),
+                    Column('load_percentage', css_class='col-md-6'),
+                ),
+                Row(
+                    Column('area_sqm', css_class='col-md-6'),
+                    Column('pipe_length_m', css_class='col-md-6'),
+                ),
                 Row(
                     Column('width_mm', css_class='col-md-6'),
                     Column('height_mm', css_class='col-md-6'),
@@ -105,3 +112,19 @@ class RadiatorForm(forms.ModelForm):
                 HTML('<a href="javascript:history.back()" class="btn btn-secondary ms-2">Cancel</a>')
             )
         )
+
+class RadiatorPercentageForm(forms.ModelForm):
+    class Meta:
+        model = Radiator
+        fields = ['load_percentage']
+        widgets = {
+            'load_percentage': forms.NumberInput(attrs={'class': 'form-control percentage-input', 'min': 0, 'max': 100})
+        }
+
+from django.forms import modelformset_factory
+
+RadiatorPercentageFormSet = modelformset_factory(
+    Radiator,
+    form=RadiatorPercentageForm,
+    extra=0
+)

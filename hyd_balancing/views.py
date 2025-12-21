@@ -5,8 +5,47 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import HeatingSystem, Room, Radiator
-from .forms import HeatingSystemForm, RoomForm, RadiatorForm
+from .forms import HeatingSystemForm, RoomForm, RadiatorForm, RadiatorPercentageFormSet
 from .calculation import perform_hydraulic_balancing
+
+# ... existing views ...
+
+class RoomRadiatorPercentageView(LoginRequiredMixin, View):
+    template_name = 'hyd_balancing/room_percentages.html'
+
+    def get(self, request, pk):
+        room = get_object_or_404(Room, pk=pk, system__user=request.user)
+        formset = RadiatorPercentageFormSet(queryset=room.radiators.all())
+        return render(request, self.template_name, {'room': room, 'formset': formset})
+
+    def post(self, request, pk):
+        room = get_object_or_404(Room, pk=pk, system__user=request.user)
+        radiators = room.radiators.all()
+        
+        if 'auto_distribute' in request.POST:
+            total_capacity = sum(rad.max_capacity_watts or 0 for rad in radiators)
+            if total_capacity > 0:
+                for rad in radiators:
+                    percentage = round(((rad.max_capacity_watts or 0) / total_capacity) * 100)
+                    rad.load_percentage = percentage
+                    rad.save()
+                messages.success(request, "Percentages automatically distributed based on radiator capacities.")
+            else:
+                messages.error(request, "Cannot auto-distribute: Radiator capacities are 0. Please run calculations first.")
+            return redirect('room_radiator_percentages', pk=pk)
+
+        formset = RadiatorPercentageFormSet(request.POST, queryset=radiators)
+        if formset.is_valid():
+            # Check total percentage
+            total = sum(form.cleaned_data.get('load_percentage', 0) for form in formset)
+            if total > 100:
+                messages.error(request, f"Total percentage cannot exceed 100% (Current total: {total}%).")
+                return render(request, self.template_name, {'room': room, 'formset': formset})
+            
+            formset.save()
+            messages.success(request, f"Percentages updated for {room.name}.")
+            return redirect('system_detail', pk=room.system.pk)
+        return render(request, self.template_name, {'room': room, 'formset': formset})
 
 # --- Home/System List ---
 class HomeView(LoginRequiredMixin, ListView):
@@ -149,7 +188,10 @@ class RadiatorCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def get_success_url(self):
-        return reverse('system_detail', kwargs={'pk': self.object.room.system.pk})
+        room = self.object.room
+        if room.radiators.count() > 1:
+            return reverse('room_radiator_percentages', kwargs={'pk': room.pk})
+        return reverse('system_detail', kwargs={'pk': room.system.pk})
 
 class RadiatorUpdateView(LoginRequiredMixin, UpdateView):
     model = Radiator
