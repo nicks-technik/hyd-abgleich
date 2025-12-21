@@ -1,14 +1,37 @@
 # Project Context: hyd-abgleich
 
 ## Project Overview
-**Name:** hyd-abgleich  
-**Inferred Purpose:** The project name "hyd-abgleich" (German for "Hydraulic Balancing") suggests this project may be intended for calculating, simulating, or documenting hydraulic balancing in heating or cooling systems.  
-**Current Status:** New / Empty Project
+**Name:** hyd-abgleich
+**Purpose:** Hydraulic balancing calculation system (inferred).
+**Tech Stack:** Python, Django, uv (package manager).
 
-## Directory Structure
+## Project Structure
+- `hyd_abgleich/`: Django project configuration and settings.
+- `manage.py`: Django's command-line utility.
+- `pyproject.toml`: Python project configuration and dependencies (managed by `uv`).
+- `uv.lock`: Dependency lock file.
 
+## Development
 
-## Recommended Next Steps
-1.  **Define Project Goals:** Create a `README.md` to outline the specific objectives and scope.
-2.  **Choose Technology Stack:** Decide on the programming language and framework (e.g., Python for calculation scripts, JavaScript/React for a web interface).
-3.  **Setup Environment:** Create necessary configuration files (e.g., `requirements.txt`, `package.json`).
+### Prerequisites
+- `uv` installed.
+
+### Setup
+1.  **Install Dependencies:**
+    ```bash
+    uv sync
+    ```
+
+### Running the Server
+To start the Django development server:
+```bash
+uv run manage.py runserver
+```
+
+### Management
+Run standard Django commands using `uv run manage.py <command>`.
+Example:
+```bash
+uv run manage.py migrate
+uv run manage.py startapp myapp
+```
