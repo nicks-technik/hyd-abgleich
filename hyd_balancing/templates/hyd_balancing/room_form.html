@@ -19,4 +19,41 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const lengthInput = document.getElementById('id_length_m');
+        const widthInput = document.getElementById('id_width_m');
+        const areaInput = document.getElementById('id_area_sqm');
+
+        function updateArea() {
+            const length = parseFloat(lengthInput.value);
+            const width = parseFloat(widthInput.value);
+            if (!isNaN(length) && !isNaN(width)) {
+                areaInput.value = (length * width).toFixed(2);
+            }
+        }
+
+        if (lengthInput && widthInput && areaInput) {
+            lengthInput.addEventListener('input', updateArea);
+            widthInput.addEventListener('input', updateArea);
+        }
+
+        const insulationSelect = document.getElementById('id_insulation_quality');
+        const customDiv = document.getElementById('div_id_custom_insulation_value');
+
+        function toggleCustom() {
+            if (insulationSelect.value === 'custom') {
+                customDiv.style.display = 'block';
+            } else {
+                customDiv.style.display = 'none';
+            }
+        }
+
+        if (insulationSelect && customDiv) {
+            insulationSelect.addEventListener('change', toggleCustom);
+            toggleCustom(); // Init
+        }
+    });
+</script>
 {% endblock %}
