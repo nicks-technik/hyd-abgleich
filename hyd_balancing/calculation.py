@@ -145,7 +145,7 @@ def calculate_simplified_balancing(system: HeatingSystem):
     """
     rooms = list(system.rooms.all())
     if not rooms:
-        return []
+        return [], 0, 0
 
     # 1. Determine Min Area and Max Relative Area
     areas = [r.area_sqm for r in rooms if r.area_sqm > 0]
