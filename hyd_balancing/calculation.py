@@ -179,6 +179,7 @@ def calculate_simplified_balancing(system: HeatingSystem):
         num_rads = room.radiators.count()
         if num_rads == 0:
             zwr_a = 0
+            zwr_b = 0
             final_setting = 0
         else:
             # ZwR A: Count - (Count/4) -> N * 0.75

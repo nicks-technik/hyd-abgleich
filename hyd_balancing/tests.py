@@ -74,3 +74,15 @@ class SimplifiedBalancingTest(TestCase):
         self.assertEqual(results, [])
         self.assertEqual(min_area, 0)
         self.assertEqual(max_rel_area, 0)
+
+    def test_room_with_no_radiators(self):
+        # Create a room with no radiators
+        r_empty = Room.objects.create(system=self.system, name='Empty Room', area_sqm=15, target_temp=20)
+        
+        results, _, _ = calculate_simplified_balancing(self.system)
+        
+        row_empty = next(r for r in results if r['room'] == r_empty)
+        self.assertEqual(row_empty['num_rads'], 0)
+        self.assertEqual(row_empty['zwr_a'], 0)
+        self.assertEqual(row_empty['zwr_b'], 0)
+        self.assertEqual(row_empty['final_setting'], 0)
