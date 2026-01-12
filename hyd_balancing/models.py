@@ -27,6 +27,7 @@ class Room(models.Model):
     floor = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Floor"), help_text=_("e.g., Ground Floor, 1st Floor"))
     area_sqm = models.FloatField(verbose_name=_("Area (m²)"), help_text=_("Total floor area of the room. Can be calculated from length and width."))
     height_m = models.FloatField(default=2.5, verbose_name=_("Ceiling Height (m)"), help_text=_("The vertical height of the room, used for volume estimations."))
+    external_walls = models.IntegerField(default=1, verbose_name=_("External Walls"), help_text=_("Number of walls facing outside (0-4). Affects heat demand."))
     target_temp = models.FloatField(default=20.0, verbose_name=_("Target Temperature (°C)"), help_text=_("Desired room temperature. Usually 20°C for living rooms, 22°C for bathrooms."))
     insulation_quality = models.CharField(max_length=20, choices=INSULATION_CHOICES, default='average', help_text=_("Affects how much heat (W/m²) is needed to maintain temperature."))
     custom_insulation_value = models.FloatField(null=True, blank=True, verbose_name=_("Custom Insulation Value (W/m²)"), help_text=_("Specify the exact heat demand in Watts per square meter."))

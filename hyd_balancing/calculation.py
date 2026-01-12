@@ -3,6 +3,7 @@ from .models import HeatingSystem, Room, Radiator
 def get_specific_heat_demand(room):
     """
     Returns estimated W/m² based on insulation quality or custom value.
+    Includes correction for number of external walls.
     """
     if room.insulation_quality == 'custom' and room.custom_insulation_value:
         return room.custom_insulation_value
@@ -12,7 +13,28 @@ def get_specific_heat_demand(room):
         'average': 100.0, # Standard / Renovated
         'good': 50.0,     # Modern / Highly Insulated
     }
-    return mapping.get(room.insulation_quality, 100.0)
+    base_demand = mapping.get(room.insulation_quality, 100.0)
+    
+    # External Walls Correction
+    # 0 walls (internal): -20%
+    # 1 wall (standard): 0%
+    # 2 walls (corner): +10%
+    # 3 walls: +20%
+    # 4 walls: +30%
+    wall_factors = {
+        0: 0.8,
+        1: 1.0,
+        2: 1.1,
+        3: 1.2,
+        4: 1.3
+    }
+    factor = wall_factors.get(room.external_walls, 1.0)
+    
+    # Clamp just in case (though input is validated, robustness is good)
+    if room.external_walls > 4: factor = 1.3
+    if room.external_walls < 0: factor = 0.8
+    
+    return base_demand * factor
 
 def get_radiator_nominal_output(rad: Radiator):
     """
