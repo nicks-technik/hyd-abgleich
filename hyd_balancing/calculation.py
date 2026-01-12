@@ -138,3 +138,80 @@ def perform_hydraulic_balancing(system: HeatingSystem):
             rad.required_flow_rate = round(req_flow, 2)
             rad.valve_setting = determine_valve_setting(req_flow, is_underfloor=is_ufh)
             rad.save()
+
+def calculate_simplified_balancing(system: HeatingSystem):
+    """
+    Returns a list of dictionaries containing calculated values for the "Hydraulikblanko" (simplified method) table.
+    """
+    rooms = list(system.rooms.all())
+    if not rooms:
+        return []
+
+    # 1. Determine Min Area and Max Relative Area
+    areas = [r.area_sqm for r in rooms if r.area_sqm > 0]
+    min_area = min(areas) if areas else 0
+    
+    # Calculate rel_area for all to find max
+    rel_areas = [max(0, r.area_sqm - min_area) for r in rooms]
+    max_rel_area = max(rel_areas) if rel_areas else 0
+
+    results = []
+    
+    # Sort rooms by name or ID (or custom order if we had it)
+    for idx, room in enumerate(rooms, start=1):
+        rel_area = max(0, room.area_sqm - min_area)
+        
+        # Volumenstromanteil (Flow Share)
+        # Avoid division by zero if all rooms are same size (max_rel_area=0)
+        if max_rel_area > 0:
+            flow_share = rel_area / max_rel_area
+        else:
+            flow_share = 1.0 # Or 0? If all same size, share is equal. Let's say 1.
+
+        # Max Value TV (Thermostat Valve) - System Parameter
+        max_tv = system.max_valve_setting # Default 6
+        corr_max_tv = max_tv - 2
+        
+        # Grundeinstellwert (Base Setting) - Empirical Formula Estimation
+        # Hypothesis: 2 + (Share * Range)
+        base_setting = 2 + (flow_share * corr_max_tv)
+        
+        num_rads = room.radiators.count()
+        if num_rads == 0:
+            zwr_a = 0
+            final_setting = 0
+        else:
+            # ZwR A: Count - (Count/4) -> N * 0.75
+            zwr_a = num_rads - (num_rads / 4.0)
+            
+            # ZwR B: (Target - 20) / 3
+            zwr_b = (room.target_temp - 20.0) / 3.0
+            
+            # Final Calculation
+            # We divide base setting by radiator factor (more rads = lower setting each)
+            # We add temp correction (higher temp = higher flow needed = higher setting)
+            if zwr_a > 0:
+                raw_final = (base_setting / zwr_a) + zwr_b
+            else:
+                raw_final = 0
+            
+            # Clamp between 1 and Max? Or leave raw? 
+            # Usually valve settings are 1-6.
+            final_setting = max(1.0, min(float(max_tv), raw_final))
+
+        results.append({
+            'room_nr': idx,
+            'room': room,
+            'rel_area': round(rel_area, 2),
+            'flow_share': round(flow_share, 2),
+            'max_tv': max_tv,
+            'corr_max_tv': corr_max_tv,
+            'base_setting': round(base_setting, 2),
+            'num_rads': num_rads,
+            'zwr_a': round(zwr_a, 2),
+            'zwr_b': round(zwr_b, 2),
+            'final_setting': round(final_setting, 1)
+        })
+
+    return results, min_area, max_rel_area
+

@@ -77,6 +77,90 @@
     </div>
 </div>
 
+<div class="card mb-4">
+    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Overview Table (Simplified Method)</h5>
+        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#simplifiedTable" aria-expanded="false" aria-controls="simplifiedTable">
+            Show/Hide
+        </button>
+    </div>
+    <div class="collapse" id="simplifiedTable">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm text-center align-middle" style="font-size: 0.9em;">
+                    <thead class="table-light">
+                        <tr>
+                            <th rowspan="2">Room No</th>
+                            <th rowspan="2">Room Name</th>
+                            <th rowspan="2">Area (m²)</th>
+                            <th>Rel. Area</th>
+                            <th>Flow Share</th>
+                            <th>Max TV</th>
+                            <th>Corr. Max TV</th>
+                            <th class="bg-success text-white">Base Setting</th>
+                            <th rowspan="2">Rad Count</th>
+                            <th>ZwR A</th>
+                            <th rowspan="2">Target Temp</th>
+                            <th>ZwR B</th>
+                            <th rowspan="2">Floor</th>
+                            <th rowspan="2">Corr.</th>
+                            <th rowspan="2" class="bg-success text-white">Setting Value</th>
+                        </tr>
+                        <tr class="text-muted" style="font-size: 0.8em;">
+                            <th>Area - Min</th>
+                            <th>Rel / MaxRel</th>
+                            <th>Input</th>
+                            <th>Max - 2</th>
+                            <th>(Uncleaned)</th>
+                            <th>N - (N/4)</th>
+                            <th>(T-20)/3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in simplified_results %}
+                        <tr>
+                            <td>{{ row.room_nr }}</td>
+                            <td>{{ row.room.name }}</td>
+                            <td>{{ row.room.area_sqm }}</td>
+                            <td>{{ row.rel_area }}</td>
+                            <td>{{ row.flow_share }}</td>
+                            <td>{{ row.max_tv }}</td>
+                            <td>{{ row.corr_max_tv }}</td>
+                            <td class="table-success fw-bold">{{ row.base_setting }}</td>
+                            <td>{{ row.num_rads }}</td>
+                            <td>{{ row.zwr_a }}</td>
+                            <td>{{ row.room.target_temp }}</td>
+                            <td>{{ row.zwr_b }}</td>
+                            <td>{{ row.room.floor|default:"-" }}</td>
+                            <td>0</td>
+                            <td class="table-success fw-bold">{{ row.final_setting }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="15" class="text-center text-muted">No rooms added yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr class="text-start">
+                            <td colspan="15">
+                                <small>
+                                    <strong>Min Area:</strong> {{ min_area }} m² &nbsp;|&nbsp; 
+                                    <strong>Max Rel. Area:</strong> {{ max_rel_area }} m²
+                                </small>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <p class="text-muted small mb-0 mt-2">
+                * This table follows the "Hydraulikblanko" simplified procedure based on relative room areas. 
+                Values are estimations. Use standard calculation for physics-based flow rates.
+            </p>
+        </div>
+    </div>
+</div>
+
 <h3>Rooms & Radiators</h3>
 {% if system.rooms.all %}
     <div class="accordion" id="roomsAccordion">

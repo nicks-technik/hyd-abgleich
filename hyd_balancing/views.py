@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import HeatingSystem, Room, Radiator
 from .forms import HeatingSystemForm, RoomForm, RadiatorForm, RadiatorPercentageFormSet
-from .calculation import perform_hydraulic_balancing
+from .calculation import perform_hydraulic_balancing, calculate_simplified_balancing
 
 # ... existing views ...
 
@@ -103,6 +103,13 @@ class HeatingSystemDetailView(LoginRequiredMixin, DetailView):
         context['total_load_kw'] = round(total_load / 1000, 2)
         context['total_radiators'] = total_radiators
         context['delta_t'] = system.supply_temperature - system.return_temperature
+        
+        # Simplified Balancing Table Data
+        simplified_results, min_area, max_rel_area = calculate_simplified_balancing(system)
+        context['simplified_results'] = simplified_results
+        context['min_area'] = min_area
+        context['max_rel_area'] = max_rel_area
+        
         return context
 
 class HeatingSystemUpdateView(LoginRequiredMixin, UpdateView):

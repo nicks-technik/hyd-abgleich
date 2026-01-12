@@ -6,7 +6,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column, Fieldset, ButtonHol
 class HeatingSystemForm(forms.ModelForm):
     class Meta:
         model = HeatingSystem
-        fields = ['name', 'supply_temperature', 'return_temperature']
+        fields = ['name', 'supply_temperature', 'return_temperature', 'max_valve_setting']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -16,8 +16,9 @@ class HeatingSystemForm(forms.ModelForm):
                 'Heating System Parameters',
                 'name',
                 Row(
-                    Column('supply_temperature', css_class='form-group col-md-6 mb-0'),
-                    Column('return_temperature', css_class='form-group col-md-6 mb-0'),
+                    Column('supply_temperature', css_class='form-group col-md-4 mb-0'),
+                    Column('return_temperature', css_class='form-group col-md-4 mb-0'),
+                    Column('max_valve_setting', css_class='form-group col-md-4 mb-0'),
                     css_class='row'
                 ),
             ),
@@ -33,7 +34,7 @@ class RoomForm(forms.ModelForm):
 
     class Meta:
         model = Room
-        fields = ['name', 'length_m', 'width_m', 'area_sqm', 'height_m', 'target_temp', 'insulation_quality', 'custom_insulation_value']
+        fields = ['name', 'floor', 'length_m', 'width_m', 'area_sqm', 'height_m', 'target_temp', 'insulation_quality', 'custom_insulation_value']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,6 +44,7 @@ class RoomForm(forms.ModelForm):
             Fieldset(
                 'Room Details',
                 'name',
+                'floor',
                 Row(
                     Column('length_m', css_class='col-md-6'),
                     Column('width_m', css_class='col-md-6'),
