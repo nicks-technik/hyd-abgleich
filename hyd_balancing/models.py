@@ -7,6 +7,7 @@ class HeatingSystem(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("System Name"), help_text=_("A name to identify this house or apartment."))
     supply_temperature = models.IntegerField(default=70, verbose_name=_("Supply Temperature (°C)"), help_text=_("The temperature of the water leaving the boiler (Vorlauftemperatur). Higher values are common in older buildings."))
     return_temperature = models.IntegerField(default=55, verbose_name=_("Return Temperature (°C)"), help_text=_("The temperature of the water returning to the boiler (Rücklauftemperatur). The difference to supply temp affects flow rates."))
+    max_valve_setting = models.IntegerField(default=6, verbose_name=_("Max Valve Setting"), help_text=_("The maximum setting value for the thermostat valves (usually 6, sometimes 10 or 15)."))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -23,6 +24,7 @@ class Room(models.Model):
 
     system = models.ForeignKey(HeatingSystem, on_delete=models.CASCADE, related_name='rooms')
     name = models.CharField(max_length=100, verbose_name=_("Room Name"), help_text=_("e.g. Living Room, Bedroom 1"))
+    floor = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Floor"), help_text=_("e.g., Ground Floor, 1st Floor"))
     area_sqm = models.FloatField(verbose_name=_("Area (m²)"), help_text=_("Total floor area of the room. Can be calculated from length and width."))
     height_m = models.FloatField(default=2.5, verbose_name=_("Ceiling Height (m)"), help_text=_("The vertical height of the room, used for volume estimations."))
     target_temp = models.FloatField(default=20.0, verbose_name=_("Target Temperature (°C)"), help_text=_("Desired room temperature. Usually 20°C for living rooms, 22°C for bathrooms."))
