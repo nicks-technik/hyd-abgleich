@@ -62,7 +62,10 @@ The calculation uses the formula:
 
 ## Resources
 
-- **Source & Inspiration:** [Hydraulic Balancing Calculation Logic (YouTube)](https://youtu.be/GJs5HC1WJV0?si=RI6yyA8eYuYTTKDh)
+- **Source & Inspiration:**
+  - [Hydraulic Balancing Calculation Logic](https://youtu.be/GJs5HC1WJV0?si=RI6yyA8eYuYTTKDh)
+  - [How to calculate and perform hydraulic balancing yourself](https://youtu.be/vmI4S3HpueY?si=0AX2lczh2aewxPNm)
+  - [Uponor - Einfach erklärt: Wie funktioniert ein hydraulischer Abgleich](https://youtu.be/3CfMV4Cm2Uk?si=hz4SMhS69SdTZm1S)
 
 ## License
 
