@@ -193,6 +193,9 @@
                                         (50 W/m²)
                                     {% endif %}
                                 </span>
+                                <span class="badge bg-secondary text-white ms-1" data-bs-toggle="tooltip" title="Number of external walls. More walls = higher heat demand.">
+                                    Ext. Walls: {{ room.external_walls }}
+                                </span>
                             </div>
                             <div class="btn-group">
                                 <a href="{% url 'room_update' room.pk %}" class="btn btn-sm btn-outline-secondary">Edit Room</a>

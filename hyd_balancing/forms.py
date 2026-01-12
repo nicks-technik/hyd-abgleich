@@ -34,7 +34,7 @@ class RoomForm(forms.ModelForm):
 
     class Meta:
         model = Room
-        fields = ['name', 'floor', 'length_m', 'width_m', 'area_sqm', 'height_m', 'target_temp', 'insulation_quality', 'custom_insulation_value']
+        fields = ['name', 'floor', 'length_m', 'width_m', 'area_sqm', 'height_m', 'external_walls', 'target_temp', 'insulation_quality', 'custom_insulation_value']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,6 +52,7 @@ class RoomForm(forms.ModelForm):
                 'area_sqm',
                 Row(
                     Column('height_m', css_class='col-md-4'),
+                    Column('external_walls', css_class='col-md-4'),
                     Column('target_temp', css_class='col-md-4'),
                 ),
                 Row(

@@ -86,3 +86,35 @@ class SimplifiedBalancingTest(TestCase):
         self.assertEqual(row_empty['zwr_a'], 0)
         self.assertEqual(row_empty['zwr_b'], 0)
         self.assertEqual(row_empty['final_setting'], 0)
+
+from .calculation import get_specific_heat_demand
+
+class HeatDemandCorrectionTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='password')
+        self.system = HeatingSystem.objects.create(user=self.user, name='Test System')
+        self.room = Room.objects.create(system=self.system, name='Test Room', area_sqm=20, insulation_quality='average') # Base 100 W/m2
+
+    def test_external_wall_factors(self):
+        # 0 Walls -> 0.8
+        self.room.external_walls = 0
+        self.assertEqual(get_specific_heat_demand(self.room), 100.0 * 0.8)
+        
+        # 1 Wall -> 1.0
+        self.room.external_walls = 1
+        self.assertEqual(get_specific_heat_demand(self.room), 100.0 * 1.0)
+        
+        # 2 Walls -> 1.1
+        self.room.external_walls = 2
+        self.assertEqual(get_specific_heat_demand(self.room), 100.0 * 1.1)
+        
+        # 4 Walls -> 1.3
+        self.room.external_walls = 4
+        self.assertEqual(get_specific_heat_demand(self.room), 100.0 * 1.3)
+
+    def test_custom_value_ignores_factor(self):
+        self.room.insulation_quality = 'custom'
+        self.room.custom_insulation_value = 123.0
+        self.room.external_walls = 4 # Should have no effect
+        self.assertEqual(get_specific_heat_demand(self.room), 123.0)
+
