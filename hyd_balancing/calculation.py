@@ -76,7 +76,10 @@ def get_ufh_capacity(rad: Radiator, system: HeatingSystem, room: Room):
     q_specific = delta_t * 10.0
     
     # Max comfort limit is usually around 100W/m2 (floor temp < 29C)
-    if q_specific > 100: q_specific = 100.0
+    # However, physics allow more (up to ~175W/m2 at higher temps before safety cutoffs).
+    # We raise this to 175 to avoid false "insufficient capacity" warnings for
+    # existing systems that might run slightly warmer or have better conductivity.
+    if q_specific > 175: q_specific = 175.0
     
     return area * q_specific
 
