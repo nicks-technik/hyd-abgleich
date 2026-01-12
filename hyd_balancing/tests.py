@@ -64,3 +64,13 @@ class SimplifiedBalancingTest(TestCase):
         # My implementation: final_setting = max(1.0, min(float(max_tv), raw_final))
         # So should be 6.
         self.assertEqual(row3['final_setting'], 6)
+
+    def test_empty_system(self):
+        empty_system = HeatingSystem.objects.create(
+            user=self.user, 
+            name='Empty System'
+        )
+        results, min_area, max_rel_area = calculate_simplified_balancing(empty_system)
+        self.assertEqual(results, [])
+        self.assertEqual(min_area, 0)
+        self.assertEqual(max_rel_area, 0)
