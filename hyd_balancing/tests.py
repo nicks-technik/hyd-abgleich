@@ -118,3 +118,40 @@ class HeatDemandCorrectionTest(TestCase):
         self.room.external_walls = 4 # Should have no effect
         self.assertEqual(get_specific_heat_demand(self.room), 123.0)
 
+from .models import Radiator
+from .calculation import get_ufh_capacity
+
+class UFHCapacityTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='ufh_user', password='password')
+        self.system = HeatingSystem.objects.create(
+            user=self.user, 
+            name='UFH System',
+            supply_temperature=45,
+            return_temperature=35
+        ) # T_avg = 40. Delta to 20 = 20K.
+        self.room = Room.objects.create(system=self.system, name='UFH Room', area_sqm=10, target_temp=20)
+        self.rad = Radiator.objects.create(room=self.room, name='Loop 1', radiator_type='underfloor', load_percentage=100)
+
+    def test_high_capacity_allowed(self):
+        # Delta T = 20K. Alpha = 10. q = 200 W/m2.
+        # Old cap was 100. New cap is 175.
+        
+        # Calculate
+        cap = get_ufh_capacity(self.rad, self.system, self.room)
+        
+        # Expected: min(200, 175) * 10m2 = 1750 W
+        self.assertEqual(cap, 1750.0)
+
+    def test_low_temp_capacity(self):
+        # T_supply=35, T_return=25 -> T_avg=30. Delta=10K.
+        self.system.supply_temperature = 35
+        self.system.return_temperature = 25
+        self.system.save()
+        
+        # q = 10 * 10 = 100 W/m2.
+        # Cap 175 doesn't trigger.
+        cap = get_ufh_capacity(self.rad, self.system, self.room)
+        self.assertEqual(cap, 1000.0)
+
+
