@@ -60,6 +60,10 @@ The calculation uses the formula:
 - **Heat Load:** Estimated by multiplying room area by a specific demand factor (W/m²) determined by insulation quality (Poor: 150, Average: 100, Good: 50).
 - **Delta T:** The temperature difference between supply and return water (e.g., 70/55 -> ΔT = 15K).
 
+## Resources
+
+- **Source & Inspiration:** [Hydraulic Balancing Calculation Logic (YouTube)](https://youtu.be/GJs5HC1WJV0?si=RI6yyA8eYuYTTKDh)
+
 ## License
 
 This project is licensed under the MIT License.
